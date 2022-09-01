@@ -20,6 +20,8 @@ public class Player extends BaseActor {
     private boolean flying;
     private boolean facingRight;
 
+    private BaseActor belowSensor;
+
     public Player(float x, float y, Stage stage) {
         super(x, y, stage);
 
@@ -60,6 +62,10 @@ public class Player extends BaseActor {
 
         this.flying = false;
         this.facingRight = true;
+
+        this.belowSensor = new BaseActor(0, 0, stage);
+        this.belowSensor.setSize(this.getWidth() - 8, 1);
+        this.belowSensor.setBoundaryRectangle();
     }
 
     @Override
@@ -71,16 +77,16 @@ public class Player extends BaseActor {
         // checks if player is flying
         this.flying = true;
         for (BaseActor solid : BaseActor.getList(this.getStage(), Solid.class))
-            if (this.overlaps(solid, 1.01f))
+            if (this.overlaps(solid, 1.01f) && this.belowOverlaps(solid))
                 this.flying = false;
 
         if (this.flying) {
             this.setAcceleration(1400);
-            this.setMaxSpeed(500);
+            this.setMaxSpeed(600);
             this.setDeceleration(1400);
         } else {
             this.setAcceleration(BaseActor.MAX_ACCELERATION);
-            this.setMaxSpeed(300);
+            this.setMaxSpeed(400);
             this.setDeceleration(BaseActor.MAX_DECELERATION);
         }
 
@@ -124,8 +130,22 @@ public class Player extends BaseActor {
         if (this.getY() + this.getHeight() > MainGame.HEIGHT)
             this.setY(MainGame.HEIGHT - this.getHeight());
 
+        // set below sensor
+        this.belowSensor.setPosition(this.getX() + 4, this.getY() - 0.2f);
+
         this.applyPhysics(delta);
         this.wrapAroundWorld();
+    }
+
+    private boolean belowOverlaps(BaseActor actor) {
+        return this.belowSensor.overlaps(actor);
+    }
+
+    public void shoot() {
+        float x = this.facingRight ? this.getX() + this.getWidth() / 3
+                : this.getX() + this.getWidth() - this.getWidth() / 4;
+        Laser laser = new Laser(0, 0, this.getStage(), this.facingRight);
+        laser.centerAtPosition(x, this.getY() + this.getHeight() / 2);
     }
 
 }
