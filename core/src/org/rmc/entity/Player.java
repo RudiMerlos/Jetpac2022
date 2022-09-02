@@ -76,9 +76,16 @@ public class Player extends BaseActor {
 
         // checks if player is flying
         this.flying = true;
-        for (BaseActor solid : BaseActor.getList(this.getStage(), Solid.class))
-            if (this.overlaps(solid, 1.01f) && this.belowOverlaps(solid))
-                this.flying = false;
+        for (BaseActor solid : BaseActor.getList(this.getStage(), Solid.class)) {
+            if (this.overlaps(solid, 1.01f)) {
+                if (this.belowOverlaps(solid)) {
+                    this.flying = false;
+                } else {
+                    this.setPosition(this.getX(), this.getY() - 10);
+                    this.accelerateAtAngle(270);
+                }
+            }
+        }
 
         if (this.flying) {
             this.setAcceleration(1400);
@@ -127,8 +134,8 @@ public class Player extends BaseActor {
         }
 
         // check vertical limit
-        if (this.getY() + this.getHeight() > MainGame.HEIGHT)
-            this.setY(MainGame.HEIGHT - this.getHeight());
+        // if (this.getY() + this.getHeight() > MainGame.HEIGHT)
+        //     this.setY(MainGame.HEIGHT - this.getHeight());
 
         // set below sensor
         this.belowSensor.setPosition(this.getX() + 4, this.getY() - 0.2f);
