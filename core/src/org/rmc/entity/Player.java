@@ -1,6 +1,5 @@
 package org.rmc.entity;
 
-import org.rmc.MainGame;
 import org.rmc.framework.base.BaseActor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -132,10 +131,6 @@ public class Player extends BaseActor {
         } else {
             this.setAnimation(this.facingRight ? this.walkRight : this.walkLeft);
         }
-
-        // check vertical limit
-        // if (this.getY() + this.getHeight() > MainGame.HEIGHT)
-        //     this.setY(MainGame.HEIGHT - this.getHeight());
 
         // set below sensor
         this.belowSensor.setPosition(this.getX() + 4, this.getY() - 0.2f);

@@ -3,7 +3,7 @@
  <tileset firstgid="1" name="floor" tilewidth="32" tileheight="32" tilecount="6" columns="3">
   <image source="floor.png" width="96" height="64"/>
  </tileset>
- <imagelayer id="2" name="Background" visible="0">
+ <imagelayer id="2" name="Background">
   <image source="background.png" width="1024" height="768"/>
  </imagelayer>
  <layer id="1" name="Tiles" width="32" height="24">
@@ -64,7 +64,7 @@
  <objectgroup id="4" name="Start">
   <object id="54" x="672" y="704" width="32" height="32">
    <properties>
-    <property name="name" value="start_rocket_down"/>
+    <property name="name" value="start_rocket_bottom"/>
    </properties>
   </object>
   <object id="55" x="512" y="704" width="32" height="32">

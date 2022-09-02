@@ -53,7 +53,6 @@ public class Laser extends BaseActor {
         this.setMaxSpeed(1000);
         this.setDeceleration(BaseActor.MAX_DECELERATION);
 
-        // this.setColor(COLORS[MathUtils.random(COLORS.length - 1)]);
         this.colorIndex = MathUtils.random(COLORS.length - 1);
 
         this.addAction(Actions.delay(0.7f));
