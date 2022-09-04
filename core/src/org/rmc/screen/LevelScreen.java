@@ -24,6 +24,9 @@ public class LevelScreen extends BaseScreen {
     private RocketTop rocketTop;
     private Rocket rocket;
 
+    private float timer;
+    private float timeToInit;
+
     @Override
     public void initialize() {
         TilemapActor tma =
@@ -66,11 +69,30 @@ public class LevelScreen extends BaseScreen {
                 tma.getRectangleList("start_player").get(0).getProperties();
         this.player = new Player((float) playerProperties.get("x"),
                 (float) playerProperties.get("y"), this.mainStage);
+        this.player.setVisible(false);
+
+        this.timer = 0;
+        if (newPlanet)
+            this.timeToInit = 3;
+        else
+            this.timeToInit = 9.5f;
     }
 
     @Override
     public void update(float delta) {
-        // Solid collision
+        if (!this.player.isVisible()) {
+            this.timer += delta;
+            if (this.timer > this.timeToInit)
+                this.player.setVisible(true);
+        }
+
+        this.checkForSolidCollision();
+
+        this.checkForRocketMidCollision();
+        this.checkForRocketTopCollision();
+    }
+
+    private void checkForSolidCollision() {
         for (BaseActor solid : BaseActor.getList(this.mainStage, Solid.class)) {
             this.player.preventOverlap(solid);
 
@@ -85,9 +107,6 @@ public class LevelScreen extends BaseScreen {
                     rocket.preventOverlap(solid);
             }
         }
-
-        this.checkForRocketMidCollision();
-        this.checkForRocketTopCollision();
     }
 
     private void checkForRocketMidCollision() {

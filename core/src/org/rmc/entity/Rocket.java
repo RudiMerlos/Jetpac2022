@@ -16,6 +16,8 @@ public class Rocket extends BaseActor {
     private int state;
     private List<Animation<TextureRegion>> animations;
 
+    private Thrusters thrusters;
+
     private boolean newPlanet;
 
     public Rocket(float x, float y, Stage stage, boolean newPlanet) {
@@ -38,6 +40,10 @@ public class Rocket extends BaseActor {
 
         this.state = 0;
         this.setAnimation(this.animations.get(this.state));
+
+        this.thrusters = new Thrusters(0, 0, stage);
+        this.addActor(this.thrusters);
+        this.thrusters.setPosition(0, -this.thrusters.getHeight() - 2);
 
         this.setAcceleration(100);
         this.setMaxSpeed(60);
@@ -66,6 +72,11 @@ public class Rocket extends BaseActor {
 
         if (this.state >= 6)
             this.accelerateAtAngle(90);
+
+        if (this.getY() > 48)
+            this.thrusters.setVisible(true);
+        else
+            this.thrusters.setVisible(false);
 
         this.applyPhysics(delta);
     }

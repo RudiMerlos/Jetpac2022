@@ -48,7 +48,7 @@ public class RocketMid extends BaseActor {
     }
 
     public boolean isOver() {
-        return this.getX() >= 667 && this.getX() <= 677 && this.getY() > 48;
+        return this.getX() >= 660 && this.getX() <= 680 && this.getY() > 48;
     }
 
     @Override

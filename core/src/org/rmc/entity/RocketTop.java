@@ -38,7 +38,7 @@ public class RocketTop extends BaseActor {
     }
 
     public boolean isOver() {
-        return this.getX() >= 667 && this.getX() <= 677 && this.getY() > 69;
+        return this.getX() >= 660 && this.getX() <= 680 && this.getY() > 69;
     }
 
     @Override
