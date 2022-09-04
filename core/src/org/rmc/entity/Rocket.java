@@ -19,6 +19,8 @@ public class Rocket extends BaseActor {
     private Thrusters thrusters;
 
     private boolean newPlanet;
+    private boolean blastOff;
+    private boolean fullDisplayed;
 
     public Rocket(float x, float y, Stage stage, boolean newPlanet) {
         super(x, y, stage);
@@ -51,6 +53,8 @@ public class Rocket extends BaseActor {
 
         this.setVisible(!newPlanet);
         this.newPlanet = newPlanet;
+        this.blastOff = false;
+        this.fullDisplayed = false;
     }
 
     public int getState() {
@@ -61,16 +65,32 @@ public class Rocket extends BaseActor {
         this.state = state;
     }
 
+    public void incrementState() {
+        if (this.state < 6)
+            this.state++;
+    }
+
+    public void setBlastOff(boolean blastOff) {
+        this.blastOff = blastOff;
+    }
+
+    public boolean isFullDisplayed() {
+        return this.fullDisplayed;
+    }
+
     @Override
     public void act(float delta) {
         super.act(delta);
 
         this.setAnimation(this.animations.get(this.state));
 
+        if (this.getY() + this.getHeight() + 8 < MainGame.HEIGHT)
+            this.fullDisplayed = true;
+
         if (!this.newPlanet && this.state == 0)
             this.accelerateAtAngle(270);
 
-        if (this.state >= 6)
+        if (this.blastOff)
             this.accelerateAtAngle(90);
 
         if (this.getY() > 48)

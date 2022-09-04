@@ -144,6 +144,8 @@ public class Player extends BaseActor {
     }
 
     public void shoot() {
+        if (!this.isVisible())
+            return;
         float x = this.facingRight ? this.getX() + this.getWidth() / 3
                 : this.getX() + this.getWidth() - this.getWidth() / 4;
         Laser laser = new Laser(0, 0, this.getStage(), this.facingRight);

@@ -1,6 +1,7 @@
 package org.rmc.screen;
 
 import org.rmc.MainGame;
+import org.rmc.entity.Fuel;
 import org.rmc.entity.Laser;
 import org.rmc.entity.Player;
 import org.rmc.entity.Rocket;
@@ -9,6 +10,7 @@ import org.rmc.entity.RocketMid;
 import org.rmc.entity.RocketTop;
 import org.rmc.entity.Solid;
 import org.rmc.framework.base.BaseActor;
+import org.rmc.framework.base.BaseGame;
 import org.rmc.framework.base.BaseScreen;
 import org.rmc.framework.tilemap.TilemapActor;
 import com.badlogic.gdx.Input.Keys;
@@ -23,6 +25,10 @@ public class LevelScreen extends BaseScreen {
     private RocketMid rocketMid;
     private RocketTop rocketTop;
     private Rocket rocket;
+    private BaseActor rocketBase;
+    private BaseActor rocketExit;
+
+    private Fuel fuel;
 
     private float timer;
     private float timeToInit;
@@ -38,6 +44,12 @@ public class LevelScreen extends BaseScreen {
                     (float) properties.get("width"), (float) properties.get("height"),
                     this.mainStage);
         }
+
+        MapProperties playerProperties =
+                tma.getRectangleList("start_player").get(0).getProperties();
+        this.player = new Player((float) playerProperties.get("x"),
+                (float) playerProperties.get("y"), this.mainStage);
+        this.player.setVisible(false);
 
         boolean newPlanet = MainGame.isNewPlanet();
         if (newPlanet) {
@@ -65,31 +77,59 @@ public class LevelScreen extends BaseScreen {
                     (float) rocketProperties.get("y"), this.mainStage, newPlanet);
         }
 
-        MapProperties playerProperties =
-                tma.getRectangleList("start_player").get(0).getProperties();
-        this.player = new Player((float) playerProperties.get("x"),
-                (float) playerProperties.get("y"), this.mainStage);
-        this.player.setVisible(false);
+        MapProperties rocketBaseProperties =
+                tma.getRectangleList("rocket_base").get(0).getProperties();
+        this.rocketBase = new BaseActor((float) rocketBaseProperties.get("x"),
+                (float) rocketBaseProperties.get("y"), this.mainStage);
+        this.rocketBase.setSize((float) rocketBaseProperties.get("width"),
+                (float) rocketBaseProperties.get("height"));
+        this.rocketBase.setBoundaryRectangle();
+
+        MapProperties rocketExitProperties =
+                tma.getRectangleList("rocket_exit").get(0).getProperties();
+        this.rocketExit = new BaseActor((float) rocketExitProperties.get("x"),
+                (float) rocketExitProperties.get("y"), this.mainStage);
+        this.rocketExit.setSize((float) rocketExitProperties.get("width"),
+                (float) rocketExitProperties.get("height"));
+        this.rocketExit.setBoundaryRectangle();
+
+        this.fuel = null;
 
         this.timer = 0;
         if (newPlanet)
             this.timeToInit = 3;
         else
-            this.timeToInit = 9.5f;
+            this.timeToInit = 12.5f;
     }
 
     @Override
     public void update(float delta) {
         if (!this.player.isVisible()) {
             this.timer += delta;
-            if (this.timer > this.timeToInit)
+            if (this.timer > this.timeToInit) {
                 this.player.setVisible(true);
+                if (!MainGame.isNewPlanet())
+                    this.createFuel();
+            }
         }
 
         this.checkForSolidCollision();
 
         this.checkForRocketMidCollision();
         this.checkForRocketTopCollision();
+
+        this.checkForFuelCollision();
+
+        if (this.rocket.getState() == 6 && this.player.overlaps(this.rocket, 0.001f)) {
+            this.rocket.setBlastOff(true);
+            this.player.setPosition(-10000, -10000);
+            this.player.setVisible(false);
+        }
+
+        if (this.rocket.getState() == 6 && this.rocket.overlaps(this.rocketExit)) {
+            MainGame.incrementLevel();
+            BaseGame.setActiveScreen(new LevelScreen());
+        }
     }
 
     private void checkForSolidCollision() {
@@ -103,8 +143,14 @@ public class LevelScreen extends BaseScreen {
 
             for (BaseActor rocketActor : BaseActor.getList(this.mainStage, Rocket.class)) {
                 Rocket rocket = (Rocket) rocketActor;
-                if (rocket.getState() != 6)
+                if (rocket.getState() != 6 && rocket.isFullDisplayed())
                     rocket.preventOverlap(solid);
+            }
+
+            for (BaseActor fuelActor : BaseActor.getList(this.mainStage, Fuel.class)) {
+                Fuel fuel = (Fuel) fuelActor;
+                if (fuel.isDisplayed())
+                    fuel.preventOverlap(solid);
             }
         }
     }
@@ -146,8 +192,34 @@ public class LevelScreen extends BaseScreen {
                 this.rocketMid.remove();
                 this.rocketTop.remove();
                 this.rocket.setVisible(true);
+                this.rocketBottom = null;
+                this.rocketMid = null;
+                this.rocketTop = null;
+                this.createFuel();
             }
         }
+    }
+
+    private void checkForFuelCollision() {
+        if (this.fuel == null)
+            return;
+
+        if (this.player.overlaps(this.fuel) && !this.fuel.isOver() && this.fuel.isDisplayed())
+            this.fuel.setCollected(true);
+
+        if (this.fuel.isCollected() && !this.fuel.isOver())
+            this.fuel.centerAtActor(this.player);
+
+        if (this.fuel.overlaps(this.rocketBase) && this.fuel.isOver()) {
+            this.rocket.incrementState();
+            this.fuel.remove();
+            this.createFuel();
+        }
+    }
+
+    private void createFuel() {
+        if (this.rocket.getState() < 6)
+            this.fuel = new Fuel(0, 0, this.mainStage);
     }
 
     @Override
