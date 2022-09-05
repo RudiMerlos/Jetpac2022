@@ -1,6 +1,7 @@
 package org.rmc.screen;
 
 import org.rmc.MainGame;
+import org.rmc.entity.Explosion;
 import org.rmc.entity.Fuel;
 import org.rmc.entity.Laser;
 import org.rmc.entity.Player;
@@ -9,6 +10,8 @@ import org.rmc.entity.RocketBottom;
 import org.rmc.entity.RocketMid;
 import org.rmc.entity.RocketTop;
 import org.rmc.entity.Solid;
+import org.rmc.entity.enemies.Enemy;
+import org.rmc.entity.enemies.Meteor;
 import org.rmc.framework.base.BaseActor;
 import org.rmc.framework.base.BaseGame;
 import org.rmc.framework.base.BaseScreen;
@@ -108,6 +111,7 @@ public class LevelScreen extends BaseScreen {
             this.timer += delta;
             if (this.timer > this.timeToInit) {
                 this.player.setVisible(true);
+                this.createEnemies();
                 if (!MainGame.isNewPlanet())
                     this.createFuel();
             }
@@ -145,6 +149,15 @@ public class LevelScreen extends BaseScreen {
                 Rocket rocket = (Rocket) rocketActor;
                 if (rocket.getState() != 6 && rocket.isFullDisplayed())
                     rocket.preventOverlap(solid);
+            }
+
+            for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
+                if (enemy.overlaps(solid)) {
+                    Explosion explosion = new Explosion(0, 0, this.mainStage);
+                    explosion.centerAtActor(enemy);
+                    this.removeEnemy(enemy);
+                    this.createNewEnemy((Enemy) enemy);
+                }
             }
 
             for (BaseActor fuelActor : BaseActor.getList(this.mainStage, Fuel.class)) {
@@ -215,6 +228,24 @@ public class LevelScreen extends BaseScreen {
             this.fuel.remove();
             this.createFuel();
         }
+    }
+
+    private void createEnemies() {
+        if (MainGame.getLevel() == 1 || MainGame.getLevel() == 9) {
+            for (int i = 0; i < MainGame.getMaxEnemies(); i++)
+                new Meteor(0, 0, this.mainStage);
+        }
+    }
+
+    private void createNewEnemy(Enemy enemyDestroyed) {
+        if (enemyDestroyed instanceof Meteor)
+            new Meteor(0, 0, this.mainStage);
+    }
+
+    private void removeEnemy(BaseActor enemy) {
+        enemy.remove();
+        enemy.setVisible(false);
+        enemy.setPosition(-10000, -10000);
     }
 
     private void createFuel() {

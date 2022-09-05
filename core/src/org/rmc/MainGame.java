@@ -9,6 +9,7 @@ public class MainGame extends BaseGame {
     public static final int HEIGHT = 768;
 
     private static int level = 1;
+    private static int maxEnemies = 5;
 
     @Override
     public void create() {
@@ -18,10 +19,6 @@ public class MainGame extends BaseGame {
 
     public static int getLevel() {
         return level;
-    }
-
-    public static void setLevel(int l) {
-        level = l;
     }
 
     public static void incrementLevel() {
@@ -74,6 +71,19 @@ public class MainGame extends BaseGame {
             return "images/rocket_3_top.png";
         else
             return "images/rocket_4_top.png";
+    }
+
+    public static int getMaxEnemies() {
+        return maxEnemies;
+    }
+
+    public static void incrementMaxEnemies() {
+        maxEnemies++;
+    }
+
+    public static void reset() {
+        level = 1;
+        maxEnemies = 5;
     }
 
 }

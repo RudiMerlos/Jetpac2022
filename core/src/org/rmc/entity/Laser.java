@@ -18,8 +18,8 @@ public class Laser extends BaseActor {
 
     private boolean facingRight;
 
-    private static final Color[] COLORS = {Color.valueOf("ffffff"), Color.valueOf("00ffff"),
-            Color.valueOf("00ff00"), Color.valueOf("ff00ff"), Color.valueOf("ffff00")};
+    private static final Color[] COLORS =
+            {Color.WHITE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.YELLOW};
     private int colorIndex;
 
     public Laser(float x, float y, Stage stage, boolean facingRight) {
