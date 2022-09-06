@@ -1,5 +1,6 @@
 package org.rmc.entity.enemies;
 
+import org.rmc.MainGame;
 import org.rmc.framework.base.BaseActor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
@@ -16,6 +17,13 @@ public abstract class Enemy extends BaseActor {
         super(x, y, stage);
 
         this.startLeft = MathUtils.randomBoolean();
+
+        int startY = MathUtils.random(80,
+                MainGame.HEIGHT - (int) this.getHeight() - (int) this.getHeight() / 2);
+        this.setPosition(this.startLeft ? -this.getWidth() : MainGame.WIDTH, startY);
+
+        if (!this.startLeft)
+            this.setScale(-1);
 
         this.setAcceleration(BaseActor.MAX_ACCELERATION);
         this.setMaxSpeed(speed);

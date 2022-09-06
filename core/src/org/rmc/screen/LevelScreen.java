@@ -12,6 +12,7 @@ import org.rmc.entity.RocketTop;
 import org.rmc.entity.Solid;
 import org.rmc.entity.enemies.Enemy;
 import org.rmc.entity.enemies.Meteor;
+import org.rmc.entity.enemies.Slick;
 import org.rmc.framework.base.BaseActor;
 import org.rmc.framework.base.BaseGame;
 import org.rmc.framework.base.BaseScreen;
@@ -184,11 +185,13 @@ public class LevelScreen extends BaseScreen {
 
             for (BaseActor enemyActor : BaseActor.getList(this.mainStage, Enemy.class)) {
                 Enemy enemy = (Enemy) enemyActor;
-                if (enemy.overlaps(solid)) {
-                    if (enemy instanceof Meteor)
+                if (enemy.overlaps(solid, 1.01f)) {
+                    if (enemy instanceof Meteor) {
                         this.removeEnemy(enemyActor);
-                    else
+                    } else {
+                        enemy.preventOverlap(solid);
                         enemy.changeDirectionY();
+                    }
                 }
             }
 
@@ -288,13 +291,18 @@ public class LevelScreen extends BaseScreen {
         if (MainGame.getLevel() == 1 || MainGame.getLevel() == 9) {
             for (int i = 0; i < MainGame.getMaxEnemies(); i++)
                 new Meteor(0, 0, this.mainStage);
+        } else if (MainGame.getLevel() == 2 || MainGame.getLevel() == 10) {
+            for (int i = 0; i < MainGame.getMaxEnemies(); i++)
+                new Slick(0, 0, this.mainStage);
         }
     }
 
     private void createNewEnemy(Enemy enemyDestroyed) {
-        if (enemyDestroyed instanceof Meteor) {
-            if (this.rocket.getState() != 6)
+        if (this.rocket.getState() != 6) {
+            if (enemyDestroyed instanceof Meteor)
                 new Meteor(0, 0, this.mainStage);
+            else if (enemyDestroyed instanceof Slick)
+                new Slick(0, 0, this.mainStage);
         }
     }
 
