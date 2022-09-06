@@ -22,6 +22,10 @@ public abstract class Enemy extends BaseActor {
         this.setDeceleration(BaseActor.MAX_DECELERATION);
     }
 
+    public void changeDirectionY() {
+        this.direction = -this.direction;
+    }
+
     @Override
     public void act(float delta) {
         super.act(delta);

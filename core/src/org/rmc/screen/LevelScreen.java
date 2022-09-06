@@ -19,10 +19,12 @@ import org.rmc.framework.tilemap.TilemapActor;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.math.Vector2;
 
 public class LevelScreen extends BaseScreen {
 
     private Player player;
+    private Vector2 playerStartPos;
 
     private RocketBottom rocketBottom;
     private RocketMid rocketMid;
@@ -35,6 +37,7 @@ public class LevelScreen extends BaseScreen {
 
     private float timer;
     private float timeToInit;
+    private static final float TIME_TO_DIE = 1;
 
     @Override
     public void initialize() {
@@ -50,8 +53,9 @@ public class LevelScreen extends BaseScreen {
 
         MapProperties playerProperties =
                 tma.getRectangleList("start_player").get(0).getProperties();
-        this.player = new Player((float) playerProperties.get("x"),
-                (float) playerProperties.get("y"), this.mainStage);
+        this.playerStartPos =
+                new Vector2((float) playerProperties.get("x"), (float) playerProperties.get("y"));
+        this.player = new Player(this.playerStartPos.x, this.playerStartPos.y, this.mainStage);
         this.player.setVisible(false);
 
         boolean newPlanet = MainGame.isNewPlanet();
@@ -107,23 +111,19 @@ public class LevelScreen extends BaseScreen {
 
     @Override
     public void update(float delta) {
-        if (!this.player.isVisible()) {
-            this.timer += delta;
-            if (this.timer > this.timeToInit) {
-                this.player.setVisible(true);
-                this.createEnemies();
-                if (!MainGame.isNewPlanet())
-                    this.createFuel();
-            }
-        }
+        if (!this.player.isVisible() && (this.rocket.getState() == 0 || this.player.isDead()))
+            this.initLevel(delta);
+        else if (this.player.isDead())
+            this.waitToInit(delta);
 
         this.checkForSolidCollision();
-
         this.checkForRocketMidCollision();
         this.checkForRocketTopCollision();
-
+        this.checkForEnemyCollision();
+        this.checkForLaserCollision();
         this.checkForFuelCollision();
 
+        // win level
         if (this.rocket.getState() == 6 && this.player.overlaps(this.rocket, 0.001f)) {
             this.rocket.setBlastOff(true);
             this.player.setPosition(-10000, -10000);
@@ -133,6 +133,37 @@ public class LevelScreen extends BaseScreen {
         if (this.rocket.getState() == 6 && this.rocket.overlaps(this.rocketExit)) {
             MainGame.incrementLevel();
             BaseGame.setActiveScreen(new LevelScreen());
+        }
+    }
+
+    private void initLevel(float delta) {
+        this.timer += delta;
+        if (this.timer > this.timeToInit) {
+            this.player.setDead(false);
+            this.player.setVisible(true);
+            this.createEnemies();
+            if (this.rocket.isVisible())
+                this.createFuel();
+            this.timer = 0;
+        }
+    }
+
+    private void waitToInit(float delta) {
+        this.timer += delta;
+        if (this.timer > TIME_TO_DIE) {
+            for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
+                enemy.remove();
+                enemy.setVisible(false);
+                enemy.setPosition(-10000, -10000);
+            }
+            for (BaseActor fuel : BaseActor.getList(this.mainStage, Fuel.class)) {
+                fuel.remove();
+                fuel.setVisible(false);
+                fuel.setPosition(-10000, -10000);
+            }
+            this.player.setVisible(false);
+            this.player.setPosition(this.playerStartPos.x, this.playerStartPos.y);
+            this.timer = 0;
         }
     }
 
@@ -151,12 +182,13 @@ public class LevelScreen extends BaseScreen {
                     rocket.preventOverlap(solid);
             }
 
-            for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
+            for (BaseActor enemyActor : BaseActor.getList(this.mainStage, Enemy.class)) {
+                Enemy enemy = (Enemy) enemyActor;
                 if (enemy.overlaps(solid)) {
-                    Explosion explosion = new Explosion(0, 0, this.mainStage);
-                    explosion.centerAtActor(enemy);
-                    this.removeEnemy(enemy);
-                    this.createNewEnemy((Enemy) enemy);
+                    if (enemy instanceof Meteor)
+                        this.removeEnemy(enemyActor);
+                    else
+                        enemy.changeDirectionY();
                 }
             }
 
@@ -213,6 +245,25 @@ public class LevelScreen extends BaseScreen {
         }
     }
 
+    private void checkForEnemyCollision() {
+        for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
+            if (this.player.overlaps(enemy)) {
+                this.player.setDead(true);
+                this.player.setPosition(-10000, -10000);
+                this.removeEnemy(enemy);
+            }
+        }
+    }
+
+    private void checkForLaserCollision() {
+        for (BaseActor laser : BaseActor.getList(this.mainStage, Laser.class)) {
+            for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
+                if (laser.overlaps(enemy))
+                    this.removeEnemy(enemy);
+            }
+        }
+    }
+
     private void checkForFuelCollision() {
         if (this.fuel == null)
             return;
@@ -226,7 +277,10 @@ public class LevelScreen extends BaseScreen {
         if (this.fuel.overlaps(this.rocketBase) && this.fuel.isOver()) {
             this.rocket.incrementState();
             this.fuel.remove();
-            this.createFuel();
+            if (!this.player.isDead())
+                this.createFuel();
+            else
+                this.fuel = null;
         }
     }
 
@@ -238,18 +292,24 @@ public class LevelScreen extends BaseScreen {
     }
 
     private void createNewEnemy(Enemy enemyDestroyed) {
-        if (enemyDestroyed instanceof Meteor)
-            new Meteor(0, 0, this.mainStage);
+        if (enemyDestroyed instanceof Meteor) {
+            if (this.rocket.getState() != 6)
+                new Meteor(0, 0, this.mainStage);
+        }
     }
 
     private void removeEnemy(BaseActor enemy) {
+        Explosion explosion = new Explosion(0, 0, this.mainStage);
+        explosion.centerAtActor(enemy);
         enemy.remove();
         enemy.setVisible(false);
         enemy.setPosition(-10000, -10000);
+        if (this.player.isVisible())
+            this.createNewEnemy((Enemy) enemy);
     }
 
     private void createFuel() {
-        if (this.rocket.getState() < 6)
+        if (this.rocket.getState() < 6 && !this.player.isDead())
             this.fuel = new Fuel(0, 0, this.mainStage);
     }
 

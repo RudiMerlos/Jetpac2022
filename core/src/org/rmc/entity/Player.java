@@ -21,6 +21,8 @@ public class Player extends BaseActor {
 
     private BaseActor belowSensor;
 
+    private boolean dead;
+
     public Player(float x, float y, Stage stage) {
         super(x, y, stage);
 
@@ -65,6 +67,8 @@ public class Player extends BaseActor {
         this.belowSensor = new BaseActor(0, 0, stage);
         this.belowSensor.setSize(this.getWidth() - 8, 1);
         this.belowSensor.setBoundaryRectangle();
+
+        this.dead = false;
     }
 
     @Override
@@ -137,6 +141,14 @@ public class Player extends BaseActor {
 
         this.applyPhysics(delta);
         this.wrapAroundWorld();
+    }
+
+    public boolean isDead() {
+        return this.dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 
     private boolean belowOverlaps(BaseActor actor) {
