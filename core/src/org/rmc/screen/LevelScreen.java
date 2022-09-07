@@ -10,6 +10,7 @@ import org.rmc.entity.RocketBottom;
 import org.rmc.entity.RocketMid;
 import org.rmc.entity.RocketTop;
 import org.rmc.entity.Solid;
+import org.rmc.entity.enemies.Ball;
 import org.rmc.entity.enemies.Enemy;
 import org.rmc.entity.enemies.Meteor;
 import org.rmc.entity.enemies.Slick;
@@ -298,6 +299,9 @@ public class LevelScreen extends BaseScreen {
         } else if (MainGame.getLevel() == 2 || MainGame.getLevel() == 10) {
             for (int i = 0; i < MainGame.getMaxEnemies(); i++)
                 new Slick(0, 0, this.mainStage);
+        } else if (MainGame.getLevel() == 3 || MainGame.getLevel() == 11) {
+            for (int i = 0; i < MainGame.getMaxEnemies(); i++)
+                new Ball(0, 0, this.mainStage);
         }
     }
 
@@ -307,6 +311,8 @@ public class LevelScreen extends BaseScreen {
                 new Meteor(0, 0, this.mainStage);
             else if (enemyDestroyed instanceof Slick)
                 new Slick(0, 0, this.mainStage);
+            else if (enemyDestroyed instanceof Ball)
+                new Ball(0, 0, this.mainStage);
         }
     }
 

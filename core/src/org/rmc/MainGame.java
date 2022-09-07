@@ -9,7 +9,7 @@ public class MainGame extends BaseGame {
     public static final int HEIGHT = 768;
 
     private static int level = 1;
-    private static int maxEnemies = 4;
+    private static int maxEnemies = 5;
 
     @Override
     public void create() {
@@ -23,6 +23,8 @@ public class MainGame extends BaseGame {
 
     public static void incrementLevel() {
         level++;
+        if (level == 5 || level == 9 || level == 13)
+            incrementMaxEnemies();
     }
 
     public static boolean isNewPlanet() {
