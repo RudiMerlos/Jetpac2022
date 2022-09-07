@@ -16,6 +16,7 @@ import org.rmc.entity.enemies.Cross;
 import org.rmc.entity.enemies.Enemy;
 import org.rmc.entity.enemies.Meteor;
 import org.rmc.entity.enemies.Slick;
+import org.rmc.entity.enemies.Spaceship;
 import org.rmc.framework.base.BaseActor;
 import org.rmc.framework.base.BaseGame;
 import org.rmc.framework.base.BaseScreen;
@@ -190,7 +191,8 @@ public class LevelScreen extends BaseScreen {
             for (BaseActor enemyActor : BaseActor.getList(this.mainStage, Enemy.class)) {
                 Enemy enemy = (Enemy) enemyActor;
                 if (enemy.overlaps(solid, 1.01f)) {
-                    if (enemy instanceof Meteor || enemy instanceof Aircraft) {
+                    if (enemy instanceof Meteor || enemy instanceof Aircraft
+                            || enemy instanceof Spaceship) {
                         this.removeEnemy(enemyActor);
                     } else {
                         Vector2 v = enemy.preventOverlap(solid);
@@ -306,6 +308,8 @@ public class LevelScreen extends BaseScreen {
                 new Aircraft(0, 0, this.mainStage, this.player);
             else if (MainGame.getLevel() == 6 || MainGame.getLevel() == 14)
                 new Cross(0, 0, this.mainStage);
+            else if (MainGame.getLevel() == 7 || MainGame.getLevel() == 15)
+                new Spaceship(0, 0, this.mainStage);
         }
     }
 
@@ -321,6 +325,8 @@ public class LevelScreen extends BaseScreen {
                 new Aircraft(0, 0, this.mainStage, this.player);
             else if (enemyDestroyed instanceof Cross)
                 new Cross(0, 0, this.mainStage);
+            else if (enemyDestroyed instanceof Spaceship)
+                new Spaceship(0, 0, this.mainStage);
         }
     }
 
