@@ -10,6 +10,7 @@ public class Meteor extends Enemy {
         this.loadAnimationFromSheet("images/enemy_meteor.png", 1, 2, 0.05f, true);
         this.setBoundaryPolygon(8);
 
+        this.startLeft = MathUtils.random(100) > 90;
         if (!this.startLeft)
             this.setScale(-1);
 
