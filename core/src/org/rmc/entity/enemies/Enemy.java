@@ -18,10 +18,6 @@ public abstract class Enemy extends BaseActor {
 
         this.startLeft = MathUtils.randomBoolean();
 
-        int startY = MathUtils.random(80,
-                MainGame.HEIGHT - (int) this.getHeight() - (int) this.getHeight() / 2);
-        this.setPosition(this.startLeft ? -this.getWidth() : MainGame.WIDTH, startY);
-
         if (!this.startLeft)
             this.setScale(-1);
 
@@ -32,6 +28,10 @@ public abstract class Enemy extends BaseActor {
 
     public void changeDirectionY() {
         this.direction = -this.direction;
+    }
+
+    public void changeDirectionX() {
+        this.direction -= 180;
     }
 
     @Override

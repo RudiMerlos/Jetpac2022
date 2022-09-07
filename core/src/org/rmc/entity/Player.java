@@ -101,19 +101,22 @@ public class Player extends BaseActor {
         }
 
         // move player
-        if (Gdx.input.isKeyPressed(Keys.O) && this.isVisible()) {
+        if ((Gdx.input.isKeyPressed(Keys.O) || Gdx.input.isKeyPressed(Keys.LEFT))
+                && this.isVisible()) {
             this.setAnimationPaused(false);
             this.setAnimation(this.flying ? this.flyLeft : this.walkLeft);
             this.accelerateAtAngle(180);
             this.facingRight = false;
-        } else if (Gdx.input.isKeyPressed(Keys.P) && this.isVisible()) {
+        } else if ((Gdx.input.isKeyPressed(Keys.P) || Gdx.input.isKeyPressed(Keys.RIGHT))
+                && this.isVisible()) {
             this.setAnimationPaused(false);
             this.setAnimation(this.flying ? this.flyRight : this.walkRight);
             this.accelerateAtAngle(0);
             this.facingRight = true;
         }
 
-        if (Gdx.input.isKeyPressed(Keys.Q) && this.isVisible()) {
+        if ((Gdx.input.isKeyPressed(Keys.Q) || Gdx.input.isKeyPressed(Keys.UP))
+                && this.isVisible()) {
             this.accelerateAtAngle(90);
             if (!this.flying) {
                 Explosion explosion = new Explosion(0, 0, this.getStage());
@@ -122,7 +125,7 @@ public class Player extends BaseActor {
             }
         }
 
-        if (!Gdx.input.isKeyPressed(Keys.Q))
+        if (!Gdx.input.isKeyPressed(Keys.Q) && !Gdx.input.isKeyPressed(Keys.UP))
             this.accelerateAtAngle(270);
 
         // set animation

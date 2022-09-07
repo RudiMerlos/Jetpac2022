@@ -145,6 +145,7 @@ public class LevelScreen extends BaseScreen {
             this.createEnemies();
             if (this.rocket.isVisible())
                 this.createFuel();
+            this.timeToInit = 3;
             this.timer = 0;
         }
     }
@@ -189,8 +190,11 @@ public class LevelScreen extends BaseScreen {
                     if (enemy instanceof Meteor) {
                         this.removeEnemy(enemyActor);
                     } else {
-                        enemy.preventOverlap(solid);
+                        Vector2 v = enemy.preventOverlap(solid);
                         enemy.changeDirectionY();
+                        // horizontal overlap
+                        if (v != null && Math.abs(v.x) >= Math.abs(v.y))
+                            enemy.changeDirectionX();
                     }
                 }
             }
