@@ -12,6 +12,7 @@ import org.rmc.entity.RocketTop;
 import org.rmc.entity.Solid;
 import org.rmc.entity.enemies.Aircraft;
 import org.rmc.entity.enemies.Ball;
+import org.rmc.entity.enemies.Cross;
 import org.rmc.entity.enemies.Enemy;
 import org.rmc.entity.enemies.Meteor;
 import org.rmc.entity.enemies.Slick;
@@ -303,6 +304,8 @@ public class LevelScreen extends BaseScreen {
                 new Ball(0, 0, this.mainStage);
             else if (MainGame.getLevel() == 4 || MainGame.getLevel() == 12)
                 new Aircraft(0, 0, this.mainStage, this.player);
+            else if (MainGame.getLevel() == 6 || MainGame.getLevel() == 14)
+                new Cross(0, 0, this.mainStage);
         }
     }
 
@@ -316,6 +319,8 @@ public class LevelScreen extends BaseScreen {
                 new Ball(0, 0, this.mainStage);
             else if (enemyDestroyed instanceof Aircraft)
                 new Aircraft(0, 0, this.mainStage, this.player);
+            else if (enemyDestroyed instanceof Cross)
+                new Cross(0, 0, this.mainStage);
         }
     }
 

@@ -23,7 +23,7 @@ public class MainGame extends BaseGame {
 
     public static void incrementLevel() {
         level++;
-        if (level == 5 || level == 9 || level == 13)
+        if (level % 4 == 0)
             incrementMaxEnemies();
     }
 
