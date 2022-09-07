@@ -8,7 +8,7 @@ public class MainGame extends BaseGame {
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
 
-    private static int level = 1;
+    private static int level = 5;
     private static int maxEnemies = 5;
 
     @Override

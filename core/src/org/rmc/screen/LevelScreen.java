@@ -17,6 +17,7 @@ import org.rmc.entity.enemies.Enemy;
 import org.rmc.entity.enemies.Meteor;
 import org.rmc.entity.enemies.Slick;
 import org.rmc.entity.enemies.Spaceship;
+import org.rmc.entity.enemies.UFO;
 import org.rmc.framework.base.BaseActor;
 import org.rmc.framework.base.BaseGame;
 import org.rmc.framework.base.BaseScreen;
@@ -196,10 +197,23 @@ public class LevelScreen extends BaseScreen {
                         this.removeEnemy(enemyActor);
                     } else {
                         Vector2 v = enemy.preventOverlap(solid);
-                        enemy.changeDirectionY();
-                        // horizontal overlap
-                        if (v != null && Math.abs(v.x) >= Math.abs(v.y))
-                            enemy.changeDirectionX();
+                        if (enemy instanceof UFO) {
+                            if (v != null) {
+                                if (v.x > 0)
+                                    enemy.setX(enemy.getX() + 10);
+                                else if (v.x < 0)
+                                    enemy.setX(enemy.getX() - 10);
+                                if (v.y > 0)
+                                    enemy.setY(enemy.getY() + 10);
+                                else if (v.y < 0)
+                                    enemy.setY(enemy.getY() - 10);
+                            }
+                        } else {
+                            enemy.changeDirectionY();
+                            // horizontal overlap
+                            if (v != null && Math.abs(v.x) >= Math.abs(v.y))
+                                enemy.changeDirectionX();
+                        }
                     }
                 }
             }
@@ -306,6 +320,8 @@ public class LevelScreen extends BaseScreen {
                 new Ball(0, 0, this.mainStage);
             else if (MainGame.getLevel() == 4 || MainGame.getLevel() == 12)
                 new Aircraft(0, 0, this.mainStage, this.player);
+            else if (MainGame.getLevel() == 5 || MainGame.getLevel() == 13)
+                new UFO(0, 0, this.mainStage, this.player);
             else if (MainGame.getLevel() == 6 || MainGame.getLevel() == 14)
                 new Cross(0, 0, this.mainStage);
             else if (MainGame.getLevel() == 7 || MainGame.getLevel() == 15)
@@ -323,6 +339,8 @@ public class LevelScreen extends BaseScreen {
                 new Ball(0, 0, this.mainStage);
             else if (enemyDestroyed instanceof Aircraft)
                 new Aircraft(0, 0, this.mainStage, this.player);
+            else if (enemyDestroyed instanceof UFO)
+                new UFO(0, 0, this.mainStage, this.player);
             else if (enemyDestroyed instanceof Cross)
                 new Cross(0, 0, this.mainStage);
             else if (enemyDestroyed instanceof Spaceship)

@@ -51,7 +51,9 @@ public abstract class Enemy extends BaseActor {
     public void act(float delta) {
         super.act(delta);
 
-        if (this.wait) {
+        if (!this.wait) {
+            this.accelerateAtAngle(this.direction);
+        } else {
             this.timer += delta;
             this.setMaxSpeed(this.speed / 2);
             if (this.getY() > this.startY + 20)
@@ -62,8 +64,6 @@ public abstract class Enemy extends BaseActor {
                 this.wait = false;
                 this.setMaxSpeed(this.speed);
             }
-        } else {
-            this.accelerateAtAngle(this.direction);
         }
 
         this.applyPhysics(delta);
