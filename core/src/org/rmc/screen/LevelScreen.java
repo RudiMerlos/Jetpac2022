@@ -10,6 +10,7 @@ import org.rmc.entity.RocketBottom;
 import org.rmc.entity.RocketMid;
 import org.rmc.entity.RocketTop;
 import org.rmc.entity.Solid;
+import org.rmc.entity.enemies.Aircraft;
 import org.rmc.entity.enemies.Ball;
 import org.rmc.entity.enemies.Enemy;
 import org.rmc.entity.enemies.Meteor;
@@ -188,7 +189,7 @@ public class LevelScreen extends BaseScreen {
             for (BaseActor enemyActor : BaseActor.getList(this.mainStage, Enemy.class)) {
                 Enemy enemy = (Enemy) enemyActor;
                 if (enemy.overlaps(solid, 1.01f)) {
-                    if (enemy instanceof Meteor) {
+                    if (enemy instanceof Meteor || enemy instanceof Aircraft) {
                         this.removeEnemy(enemyActor);
                     } else {
                         Vector2 v = enemy.preventOverlap(solid);
@@ -293,15 +294,15 @@ public class LevelScreen extends BaseScreen {
     }
 
     private void createEnemies() {
-        if (MainGame.getLevel() == 1 || MainGame.getLevel() == 9) {
-            for (int i = 0; i < MainGame.getMaxEnemies(); i++)
+        for (int i = 0; i < MainGame.getMaxEnemies(); i++) {
+            if (MainGame.getLevel() == 1 || MainGame.getLevel() == 9)
                 new Meteor(0, 0, this.mainStage);
-        } else if (MainGame.getLevel() == 2 || MainGame.getLevel() == 10) {
-            for (int i = 0; i < MainGame.getMaxEnemies(); i++)
+            else if (MainGame.getLevel() == 2 || MainGame.getLevel() == 10)
                 new Slick(0, 0, this.mainStage);
-        } else if (MainGame.getLevel() == 3 || MainGame.getLevel() == 11) {
-            for (int i = 0; i < MainGame.getMaxEnemies(); i++)
+            else if (MainGame.getLevel() == 3 || MainGame.getLevel() == 11)
                 new Ball(0, 0, this.mainStage);
+            else if (MainGame.getLevel() == 4 || MainGame.getLevel() == 12)
+                new Aircraft(0, 0, this.mainStage, this.player);
         }
     }
 
@@ -313,6 +314,8 @@ public class LevelScreen extends BaseScreen {
                 new Slick(0, 0, this.mainStage);
             else if (enemyDestroyed instanceof Ball)
                 new Ball(0, 0, this.mainStage);
+            else if (enemyDestroyed instanceof Aircraft)
+                new Aircraft(0, 0, this.mainStage, this.player);
         }
     }
 

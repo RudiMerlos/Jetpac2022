@@ -13,7 +13,7 @@ public class Meteor extends Enemy {
         if (!this.startLeft)
             this.setScale(-1);
 
-        this.setColor(COLORS[MathUtils.random(3)]);
+        this.setColor(COLORS[MathUtils.random(COLORS.length - 1)]);
 
         this.direction = this.startLeft ? MathUtils.random(340, 360) : MathUtils.random(180, 200);
     }

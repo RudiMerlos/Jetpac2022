@@ -10,21 +10,33 @@ public abstract class Enemy extends BaseActor {
 
     protected boolean startLeft;
     protected float direction;
+    protected boolean wait;
+
+    private float timer;
+    private static final float TIME_TO_WAIT = 1;
+
+    private float startY;
+    private float speed;
 
     protected static final Color[] COLORS = {Color.CYAN, Color.MAGENTA, Color.GREEN, Color.RED};
 
     protected Enemy(float x, float y, Stage stage, float speed) {
         super(x, y, stage);
 
+        this.wait = false;
+        this.timer = 0;
+
         this.startLeft = MathUtils.randomBoolean();
 
-        float startY = MathUtils.random(this.getHeight() * 3,
+        this.startY = MathUtils.random(this.getHeight() * 3,
                 MainGame.HEIGHT - this.getHeight() - this.getHeight() * 2);
-        this.setPosition(this.startLeft ? -this.getWidth() : MainGame.WIDTH, startY);
+        this.setPosition(this.startLeft ? -this.getWidth() : MainGame.WIDTH, this.startY);
 
         this.setAcceleration(BaseActor.MAX_ACCELERATION);
         this.setMaxSpeed(speed);
         this.setDeceleration(BaseActor.MAX_DECELERATION);
+
+        this.speed = speed;
     }
 
     public void changeDirectionY() {
@@ -39,7 +51,20 @@ public abstract class Enemy extends BaseActor {
     public void act(float delta) {
         super.act(delta);
 
-        this.accelerateAtAngle(this.direction);
+        if (this.wait) {
+            this.timer += delta;
+            this.setMaxSpeed(this.speed / 2);
+            if (this.getY() > this.startY + 20)
+                this.accelerateAtAngle(270);
+            else
+                this.accelerateAtAngle(90);
+            if (this.timer > TIME_TO_WAIT) {
+                this.wait = false;
+                this.setMaxSpeed(this.speed);
+            }
+        } else {
+            this.accelerateAtAngle(this.direction);
+        }
 
         this.applyPhysics(delta);
         this.wrapAroundWorld();

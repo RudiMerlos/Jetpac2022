@@ -10,7 +10,7 @@ public class Ball extends Enemy {
         this.loadAnimationFromSheet("images/enemy_ball.png", 1, 2, 0.2f, true);
         this.setBoundaryPolygon(8);
 
-        this.setColor(COLORS[MathUtils.random(3)]);
+        this.setColor(COLORS[MathUtils.random(COLORS.length - 1)]);
 
         boolean toUp = MathUtils.randomBoolean();
         this.direction = this.startLeft ? (toUp ? 45 : -45) : (toUp ? 135 : 225);

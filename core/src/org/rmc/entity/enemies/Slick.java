@@ -13,7 +13,7 @@ public class Slick extends Enemy {
         if (!this.startLeft)
             this.setScale(-1);
 
-        this.setColor(COLORS[MathUtils.random(3)]);
+        this.setColor(COLORS[MathUtils.random(COLORS.length - 1)]);
 
         boolean toUp = MathUtils.randomBoolean();
         this.direction = this.startLeft ? (toUp ? 45 : -45) : (toUp ? 135 : 225);
