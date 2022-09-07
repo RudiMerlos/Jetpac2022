@@ -11,6 +11,7 @@ import org.rmc.entity.RocketMid;
 import org.rmc.entity.RocketTop;
 import org.rmc.entity.Solid;
 import org.rmc.entity.enemies.Aircraft;
+import org.rmc.entity.enemies.Alien;
 import org.rmc.entity.enemies.Ball;
 import org.rmc.entity.enemies.Cross;
 import org.rmc.entity.enemies.Enemy;
@@ -126,6 +127,7 @@ public class LevelScreen extends BaseScreen {
         this.checkForRocketMidCollision();
         this.checkForRocketTopCollision();
         this.checkForEnemyCollision();
+        this.checkForEnemyOutOfBounce();
         this.checkForLaserCollision();
         this.checkForFuelCollision();
 
@@ -197,7 +199,7 @@ public class LevelScreen extends BaseScreen {
                         this.removeEnemy(enemyActor);
                     } else {
                         Vector2 v = enemy.preventOverlap(solid);
-                        if (enemy instanceof UFO) {
+                        if (enemy instanceof UFO || enemy instanceof Alien) {
                             if (v != null) {
                                 if (v.x > 0)
                                     enemy.setX(enemy.getX() + 10);
@@ -281,6 +283,13 @@ public class LevelScreen extends BaseScreen {
         }
     }
 
+    private void checkForEnemyOutOfBounce() {
+        for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
+            if (enemy.getY() > MainGame.HEIGHT)
+                this.removeEnemy(enemy);
+        }
+    }
+
     private void checkForLaserCollision() {
         for (BaseActor laser : BaseActor.getList(this.mainStage, Laser.class)) {
             for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
@@ -326,6 +335,8 @@ public class LevelScreen extends BaseScreen {
                 new Cross(0, 0, this.mainStage);
             else if (MainGame.getLevel() == 7 || MainGame.getLevel() == 15)
                 new Spaceship(0, 0, this.mainStage);
+            else if (MainGame.getLevel() == 8 || MainGame.getLevel() == 16)
+                new Alien(0, 0, this.mainStage, this.player);
         }
     }
 
@@ -345,6 +356,8 @@ public class LevelScreen extends BaseScreen {
                 new Cross(0, 0, this.mainStage);
             else if (enemyDestroyed instanceof Spaceship)
                 new Spaceship(0, 0, this.mainStage);
+            else if (enemyDestroyed instanceof Alien)
+                new Alien(0, 0, this.mainStage, this.player);
         }
     }
 

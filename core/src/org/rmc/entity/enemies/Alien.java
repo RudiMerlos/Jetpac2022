@@ -4,13 +4,13 @@ import org.rmc.entity.Player;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-public class UFO extends Enemy {
+public class Alien extends Enemy {
 
     private Player player;
 
-    public UFO(float x, float y, Stage stage, Player player) {
+    public Alien(float x, float y, Stage stage, Player player) {
         super(x, y, stage, 160);
-        this.loadTexture("images/enemy_ufo.png");
+        this.loadTexture("images/enemy_alien.png");
         this.setBoundaryPolygon(8);
 
         if (!this.startLeft)
