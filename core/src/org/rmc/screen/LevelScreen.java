@@ -25,10 +25,13 @@ import org.rmc.framework.base.BaseGame;
 import org.rmc.framework.base.BaseScreen;
 import org.rmc.framework.tilemap.TilemapActor;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public class LevelScreen extends BaseScreen {
 
@@ -52,6 +55,17 @@ public class LevelScreen extends BaseScreen {
     private static final float TIME_TO_DIE = 1;
 
     private int score;
+    private int lives;
+
+    private Label scoreTitleLabel;
+    private Label scoreLabel;
+    private Label livesLabel;
+    private Table livesTable;
+    private Label maxScoreTitleLabel;
+    private Label maxScoreLabel;
+
+    private boolean scoreRocketMidPart;
+    private boolean scoreRocketTopPart;
 
     @Override
     public void initialize() {
@@ -125,7 +139,48 @@ public class LevelScreen extends BaseScreen {
         else
             this.timeToInit = 12.5f;
 
-        this.score = 0;
+        this.score = MainGame.getScore();
+        this.lives = MainGame.getLives();
+
+        this.scoreRocketMidPart = true;
+        this.scoreRocketTopPart = true;
+
+        this.initializeTables();
+    }
+
+    private void initializeTables() {
+        this.scoreTitleLabel = new Label("SCORE", BaseGame.labelStyle);
+        this.scoreLabel = new Label(this.getScoreString(this.score), BaseGame.labelStyle);
+        this.scoreLabel.setColor(Color.YELLOW);
+
+        this.livesLabel = new Label(String.valueOf(this.lives), BaseGame.labelStyle);
+        this.livesTable = new Table();
+        BaseActor liveIcon = new BaseActor(0, 0, this.uiStage);
+        liveIcon.loadTexture("images/player_icon.png");
+        this.livesTable.add(liveIcon);
+
+        this.maxScoreTitleLabel = new Label("HI SCORE", BaseGame.labelStyle);
+        this.maxScoreTitleLabel.setColor(Color.CYAN);
+        this.maxScoreLabel =
+                new Label(this.getScoreString(MainGame.getMaxScore()), BaseGame.labelStyle);
+        this.maxScoreLabel.setColor(Color.YELLOW);
+
+        this.uiTable.left().top();
+        this.uiTable.pad(10).padLeft(30);
+        this.uiTable.add(this.scoreTitleLabel).width(140);
+        this.uiTable.add(this.scoreLabel).width(240);
+        this.uiTable.add(this.livesLabel);
+        this.uiTable.add(this.livesTable).width(100);
+        this.uiTable.add(this.maxScoreTitleLabel).width(220).padLeft(100);
+        this.uiTable.add(this.maxScoreLabel);
+    }
+
+    private String getScoreString(int score) {
+        String str = String.valueOf(score);
+        StringBuilder scoreStr = new StringBuilder(str);
+        for (int i = 0; i < 6 - str.length(); i++)
+            scoreStr.insert(0, '0');
+        return scoreStr.toString();
     }
 
     @Override
@@ -266,6 +321,10 @@ public class LevelScreen extends BaseScreen {
         if (this.rocketMid.overlaps(this.rocketBottom, 1.01f) && this.rocketMid.isOver()) {
             this.rocketMid.preventOverlap(this.rocketBottom);
             this.rocketMid.setPlaced(true);
+            if (this.scoreRocketMidPart) {
+                this.setScore(100);
+                this.scoreRocketMidPart = false;
+            }
             this.rocketTop.setActive(true);
         }
     }
@@ -288,6 +347,10 @@ public class LevelScreen extends BaseScreen {
                 this.rocketMid.remove();
                 this.rocketTop.remove();
                 this.rocket.setVisible(true);
+                if (this.scoreRocketTopPart) {
+                    this.setScore(100);
+                    this.scoreRocketTopPart = false;
+                }
                 this.rocketBottom = null;
                 this.rocketMid = null;
                 this.rocketTop = null;
@@ -302,6 +365,13 @@ public class LevelScreen extends BaseScreen {
                 this.player.setDead(true);
                 this.player.setPosition(-10000, -10000);
                 this.removeEnemy(enemy);
+                this.lives--;
+                this.livesLabel.setText(String.valueOf(this.lives));
+                if (this.lives == 0) {
+                    MainGame.reset();
+                    BaseGame.setActiveScreen(new LevelScreen());
+                    // TODO game over state
+                }
             }
         }
     }
@@ -316,8 +386,10 @@ public class LevelScreen extends BaseScreen {
     private void checkForLaserCollision() {
         for (BaseActor laser : BaseActor.getList(this.mainStage, Laser.class)) {
             for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
-                if (laser.overlaps(enemy))
+                if (laser.overlaps(enemy)) {
+                    this.setScore(((Enemy) enemy).getScore());
                     this.removeEnemy(enemy);
+                }
             }
         }
     }
@@ -334,6 +406,7 @@ public class LevelScreen extends BaseScreen {
 
         if (this.fuel.overlaps(this.rocketBase) && this.fuel.isOver()) {
             this.rocket.incrementState();
+            this.setScore(100);
             this.fuel.remove();
             if (!this.player.isDead())
                 this.createFuel();
@@ -360,7 +433,7 @@ public class LevelScreen extends BaseScreen {
             return;
 
         if (this.player.overlaps(this.item)) {
-            this.score += 250;
+            this.setScore(250);
             this.item.remove();
             this.item.setPosition(-10000, -10000);
             this.item = null;
@@ -422,6 +495,16 @@ public class LevelScreen extends BaseScreen {
     private void createFuel() {
         if (this.rocket.getState() < 6 && !this.player.isDead())
             this.fuel = new Fuel(0, 0, this.mainStage);
+    }
+
+    private void setScore(int score) {
+        if (this.player.isVisible()) {
+            this.score += score;
+            MainGame.setScore(this.score);
+            MainGame.setMaxScore(this.score);
+            this.scoreLabel.setText(this.getScoreString(this.score));
+            this.maxScoreLabel.setText(this.getScoreString(MainGame.getMaxScore()));
+        }
     }
 
     @Override

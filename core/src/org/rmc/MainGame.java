@@ -10,10 +10,13 @@ public class MainGame extends BaseGame {
 
     private static int level = 1;
     private static int maxEnemies = 4;
+    private static int score = 0;
+    private static int maxScore = 0;
+    private static int lives = 5;
 
     @Override
     public void create() {
-        super.create();
+        super.create("fonts/zx-spectrum.ttf");
         BaseGame.setActiveScreen(new LevelScreen());
     }
 
@@ -83,9 +86,37 @@ public class MainGame extends BaseGame {
         maxEnemies++;
     }
 
+    public static int getScore() {
+        return score;
+    }
+
+    public static void setScore(int s) {
+        score = s;
+    }
+
+    public static int getLives() {
+        return lives;
+    }
+
+    public static void setLives(int l) {
+        lives = l;
+    }
+
+    public static int getMaxScore() {
+        return maxScore;
+    }
+
+    public static void setMaxScore(int s) {
+        if (s > maxScore)
+            maxScore = s;
+    }
+
     public static void reset() {
         level = 1;
         maxEnemies = 4;
+        score = 0;
+        lives = 5;
+        maxScore = getMaxScore();
     }
 
 }

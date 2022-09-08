@@ -66,9 +66,9 @@ public abstract class BaseGame extends Game {
             FreeTypeFontGenerator fontGenerator =
                     new FreeTypeFontGenerator(Gdx.files.internal(fontFile));
             FreeTypeFontParameter fontParameters = new FreeTypeFontParameter();
-            fontParameters.size = 24;
+            fontParameters.size = 20;
             fontParameters.color = Color.WHITE;
-            fontParameters.borderWidth = 1;
+            fontParameters.borderWidth = 0;
             fontParameters.borderColor = fontParameters.color;
             fontParameters.borderStraight = true;
             fontParameters.minFilter = TextureFilter.Linear;
