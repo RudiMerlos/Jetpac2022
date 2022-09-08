@@ -24,13 +24,17 @@ public class Aircraft extends Enemy {
 
         float startY = MathUtils.random(this.getHeight() * 3,
                 MainGame.HEIGHT - this.getHeight() - this.getHeight() * 2);
-        this.setPosition(this.startLeft ? 0 : MainGame.WIDTH - this.getWidth(),
-                startY);
+        this.setPosition(this.startLeft ? 0 : MainGame.WIDTH - this.getWidth(), startY);
 
         this.setColor(COLORS_AIRCRAFT[MathUtils.random(COLORS_AIRCRAFT.length - 1)]);
 
         this.direction = (float) Math
                 .toDegrees(Math.atan2(player.getY() - this.getY(), player.getX() - this.getX()));
+    }
+
+    @Override
+    public int getScore() {
+        return 55;
     }
 
 }

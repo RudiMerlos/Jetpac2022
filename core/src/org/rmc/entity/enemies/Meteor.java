@@ -19,4 +19,9 @@ public class Meteor extends Enemy {
         this.direction = this.startLeft ? MathUtils.random(340, 360) : MathUtils.random(180, 200);
     }
 
+    @Override
+    public int getScore() {
+        return 25;
+    }
+
 }

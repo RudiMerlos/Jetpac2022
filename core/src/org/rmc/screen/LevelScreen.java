@@ -3,6 +3,7 @@ package org.rmc.screen;
 import org.rmc.MainGame;
 import org.rmc.entity.Explosion;
 import org.rmc.entity.Fuel;
+import org.rmc.entity.Item;
 import org.rmc.entity.Laser;
 import org.rmc.entity.Player;
 import org.rmc.entity.Rocket;
@@ -26,6 +27,7 @@ import org.rmc.framework.tilemap.TilemapActor;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class LevelScreen extends BaseScreen {
@@ -41,10 +43,15 @@ public class LevelScreen extends BaseScreen {
     private BaseActor rocketExit;
 
     private Fuel fuel;
+    private Item item;
+    private float itemTimer;
+    private static final float TIME_TO_ITEM = 5;
 
     private float timer;
     private float timeToInit;
     private static final float TIME_TO_DIE = 1;
+
+    private int score;
 
     @Override
     public void initialize() {
@@ -108,12 +115,17 @@ public class LevelScreen extends BaseScreen {
         this.rocketExit.setBoundaryRectangle();
 
         this.fuel = null;
+        this.item = null;
+
+        this.itemTimer = 0;
 
         this.timer = 0;
         if (newPlanet)
             this.timeToInit = 3;
         else
             this.timeToInit = 12.5f;
+
+        this.score = 0;
     }
 
     @Override
@@ -131,6 +143,9 @@ public class LevelScreen extends BaseScreen {
         this.checkForLaserCollision();
         this.checkForFuelCollision();
 
+        this.createItem(delta);
+        this.checkForItemCollision();
+
         // win level
         if (this.rocket.getState() == 6 && this.player.overlaps(this.rocket, 0.001f)) {
             this.rocket.setBlastOff(true);
@@ -144,6 +159,7 @@ public class LevelScreen extends BaseScreen {
         }
     }
 
+    // time for wait to initialize level
     private void initLevel(float delta) {
         this.timer += delta;
         if (this.timer > this.timeToInit) {
@@ -157,6 +173,7 @@ public class LevelScreen extends BaseScreen {
         }
     }
 
+    // time for wait when player is dead
     private void waitToInit(float delta) {
         this.timer += delta;
         if (this.timer > TIME_TO_DIE) {
@@ -224,6 +241,12 @@ public class LevelScreen extends BaseScreen {
                 Fuel fuel = (Fuel) fuelActor;
                 if (fuel.isDisplayed())
                     fuel.preventOverlap(solid);
+            }
+
+            for (BaseActor itemActor : BaseActor.getList(this.mainStage, Item.class)) {
+                Item item = (Item) itemActor;
+                if (item.isDisplayed())
+                    item.preventOverlap(solid);
             }
         }
     }
@@ -319,6 +342,31 @@ public class LevelScreen extends BaseScreen {
         }
     }
 
+    private void createItem(float delta) {
+        if (this.item != null || this.rocket.isBlastOff())
+            return;
+
+        this.itemTimer += delta;
+        if (this.itemTimer > TIME_TO_ITEM) {
+            this.itemTimer = 0;
+            if (MathUtils.randomBoolean()) {
+                this.item = new Item(0, 0, this.mainStage);
+            }
+        }
+    }
+
+    private void checkForItemCollision() {
+        if (this.item == null)
+            return;
+
+        if (this.player.overlaps(this.item)) {
+            this.score += 250;
+            this.item.remove();
+            this.item.setPosition(-10000, -10000);
+            this.item = null;
+        }
+    }
+
     private void createEnemies() {
         for (int i = 0; i < MainGame.getMaxEnemies(); i++) {
             if (MainGame.getLevel() == 1 || MainGame.getLevel() == 9)
@@ -380,6 +428,8 @@ public class LevelScreen extends BaseScreen {
     public boolean keyDown(int keycode) {
         if (keycode == Keys.SPACE)
             this.player.shoot();
+        if (keycode == Keys.ESCAPE)
+            this.paused = !this.paused;
         return false;
     }
 

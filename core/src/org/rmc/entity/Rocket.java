@@ -70,6 +70,10 @@ public class Rocket extends BaseActor {
             this.state++;
     }
 
+    public boolean isBlastOff() {
+        return this.blastOff;
+    }
+
     public void setBlastOff(boolean blastOff) {
         this.blastOff = blastOff;
     }

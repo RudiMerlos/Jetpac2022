@@ -18,4 +18,9 @@ public class Cross extends Enemy {
         this.direction = this.startLeft ? MathUtils.random(-45, 45) : MathUtils.random(135, 225);
     }
 
+    @Override
+    public int getScore() {
+        return 60;
+    }
+
 }

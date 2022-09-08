@@ -19,4 +19,9 @@ public class Slick extends Enemy {
         this.direction = this.startLeft ? (toUp ? 45 : -45) : (toUp ? 135 : 225);
     }
 
+    @Override
+    public int getScore() {
+        return 80;
+    }
+
 }

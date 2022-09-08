@@ -25,6 +25,11 @@ public class Alien extends Enemy {
     }
 
     @Override
+    public int getScore() {
+        return 50;
+    }
+
+    @Override
     public void act(float delta) {
         super.act(delta);
 

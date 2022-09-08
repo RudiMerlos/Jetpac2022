@@ -39,6 +39,8 @@ public abstract class Enemy extends BaseActor {
         this.speed = speed;
     }
 
+    public abstract int getScore();
+
     public void changeDirectionY() {
         this.direction = -this.direction;
     }
