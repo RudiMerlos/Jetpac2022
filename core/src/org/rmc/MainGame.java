@@ -1,13 +1,14 @@
 package org.rmc;
 
 import org.rmc.framework.base.BaseGame;
-import org.rmc.screen.LevelScreen;
+import org.rmc.screen.MenuScreen;
 
 public class MainGame extends BaseGame {
 
     public static final int WIDTH = 1024;
     public static final int HEIGHT = 768;
 
+    private static int realLevel = 0;
     private static int level = 1;
     private static int maxEnemies = 4;
     private static int score = 0;
@@ -17,14 +18,21 @@ public class MainGame extends BaseGame {
     @Override
     public void create() {
         super.create("fonts/zx-spectrum.ttf");
-        BaseGame.setActiveScreen(new LevelScreen());
+        BaseGame.setActiveScreen(new MenuScreen());
     }
 
     public static int getLevel() {
         return level;
     }
 
+    public static int getRealLevel() {
+        return realLevel + 1;
+    }
+
     public static void incrementLevel() {
+        realLevel++;
+        if (realLevel % 16 == 0)
+            level = 0;
         level++;
         if (level == 2 || level == 5 || level == 9 || level == 13)
             incrementMaxEnemies();
@@ -112,6 +120,7 @@ public class MainGame extends BaseGame {
     }
 
     public static void reset() {
+        realLevel = 0;
         level = 1;
         maxEnemies = 4;
         score = 0;
