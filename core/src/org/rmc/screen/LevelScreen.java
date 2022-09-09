@@ -67,6 +67,8 @@ public class LevelScreen extends BaseScreen {
     private boolean scoreRocketMidPart;
     private boolean scoreRocketTopPart;
 
+    private boolean gameOver;
+
     @Override
     public void initialize() {
         TilemapActor tma =
@@ -145,6 +147,8 @@ public class LevelScreen extends BaseScreen {
         this.scoreRocketMidPart = true;
         this.scoreRocketTopPart = true;
 
+        this.gameOver = false;
+
         this.initializeTables();
     }
 
@@ -185,6 +189,9 @@ public class LevelScreen extends BaseScreen {
 
     @Override
     public void update(float delta) {
+        if (this.gameOver)
+            this.gameOverState(delta);
+
         if (!this.player.isVisible() && (this.rocket.getState() == 0 || this.player.isDead()))
             this.initLevel(delta);
         else if (this.player.isDead())
@@ -368,9 +375,12 @@ public class LevelScreen extends BaseScreen {
                 this.lives--;
                 this.livesLabel.setText(String.valueOf(this.lives));
                 if (this.lives == 0) {
-                    MainGame.reset();
-                    BaseGame.setActiveScreen(new LevelScreen());
-                    // TODO game over state
+                    this.player.setVisible(false);
+                    this.gameOver = true;
+                    BaseActor gameOverImage = new BaseActor(0, 0, this.mainStage);
+                    gameOverImage.loadTexture("images/gameover.png");
+                    gameOverImage.setPosition(MainGame.WIDTH / 2 - gameOverImage.getWidth() / 2,
+                            MainGame.HEIGHT / 2 - gameOverImage.getHeight() / 2);
                 }
             }
         }
@@ -504,6 +514,13 @@ public class LevelScreen extends BaseScreen {
             MainGame.setMaxScore(this.score);
             this.scoreLabel.setText(this.getScoreString(this.score));
             this.maxScoreLabel.setText(this.getScoreString(MainGame.getMaxScore()));
+        }
+    }
+
+    private void gameOverState(float delta) {
+        this.timer += delta;
+        if (this.timer > this.timeToInit) {
+            BaseGame.setActiveScreen(new MenuScreen());
         }
     }
 
