@@ -24,7 +24,9 @@ import org.rmc.framework.base.BaseActor;
 import org.rmc.framework.base.BaseGame;
 import org.rmc.framework.base.BaseScreen;
 import org.rmc.framework.tilemap.TilemapActor;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
@@ -68,6 +70,13 @@ public class LevelScreen extends BaseScreen {
     private boolean scoreRocketTopPart;
 
     private boolean gameOver;
+
+    private Sound upRocketSound;
+    private Sound downRocketSound;
+    private Sound startPlayerSound;
+    private Sound explosionSound;
+    private Sound laserSound;
+    private Sound itemSound;
 
     @Override
     public void initialize() {
@@ -150,6 +159,16 @@ public class LevelScreen extends BaseScreen {
         this.gameOver = false;
 
         this.initializeTables();
+
+        this.upRocketSound = Gdx.audio.newSound(Gdx.files.internal("sounds/up_rocket.ogg"));
+        this.downRocketSound = Gdx.audio.newSound(Gdx.files.internal("sounds/down_rocket.ogg"));
+        this.startPlayerSound = Gdx.audio.newSound(Gdx.files.internal("sounds/start_player.ogg"));
+        this.explosionSound = Gdx.audio.newSound(Gdx.files.internal("sounds/explosion.ogg"));
+        this.laserSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.ogg"));
+        this.itemSound = Gdx.audio.newSound(Gdx.files.internal("sounds/item.ogg"));
+
+        if (!MainGame.isNewPlanet())
+            this.downRocketSound.play();
     }
 
     private void initializeTables() {
@@ -189,8 +208,10 @@ public class LevelScreen extends BaseScreen {
 
     @Override
     public void update(float delta) {
-        if (this.gameOver)
+        if (this.gameOver) {
             this.gameOverState(delta);
+            return;
+        }
 
         if (!this.player.isVisible() && (this.rocket.getState() == 0 || this.player.isDead()))
             this.initLevel(delta);
@@ -211,12 +232,14 @@ public class LevelScreen extends BaseScreen {
         // win level
         if (this.rocket.getState() == 6 && this.player.overlaps(this.rocket, 0.001f)) {
             this.rocket.setBlastOff(true);
+            this.upRocketSound.play();
             this.player.setPosition(-10000, -10000);
             this.player.setVisible(false);
         }
 
         if (this.rocket.getState() == 6 && this.rocket.overlaps(this.rocketExit)) {
             MainGame.incrementLevel();
+            MainGame.setLives(this.lives);
             BaseGame.setActiveScreen(new LevelScreen());
         }
     }
@@ -225,6 +248,7 @@ public class LevelScreen extends BaseScreen {
     private void initLevel(float delta) {
         this.timer += delta;
         if (this.timer > this.timeToInit) {
+            this.player.setPosition(this.playerStartPos.x, this.playerStartPos.y);
             this.player.setDead(false);
             this.player.setVisible(true);
             this.createEnemies();
@@ -232,6 +256,8 @@ public class LevelScreen extends BaseScreen {
                 this.createFuel();
             this.timeToInit = 3;
             this.timer = 0;
+            this.downRocketSound.stop();
+            this.startPlayerSound.play();
         }
     }
 
@@ -250,7 +276,6 @@ public class LevelScreen extends BaseScreen {
                 fuel.setPosition(-10000, -10000);
             }
             this.player.setVisible(false);
-            this.player.setPosition(this.playerStartPos.x, this.playerStartPos.y);
             this.timer = 0;
         }
     }
@@ -443,6 +468,7 @@ public class LevelScreen extends BaseScreen {
             return;
 
         if (this.player.overlaps(this.item)) {
+            this.itemSound.play();
             this.setScore(250);
             this.item.remove();
             this.item.setPosition(-10000, -10000);
@@ -495,6 +521,7 @@ public class LevelScreen extends BaseScreen {
     private void removeEnemy(BaseActor enemy) {
         Explosion explosion = new Explosion(0, 0, this.mainStage);
         explosion.centerAtActor(enemy);
+        this.explosionSound.play(0.5f);
         enemy.remove();
         enemy.setVisible(false);
         enemy.setPosition(-10000, -10000);
@@ -526,8 +553,10 @@ public class LevelScreen extends BaseScreen {
 
     @Override
     public boolean keyDown(int keycode) {
-        if (keycode == Keys.SPACE)
+        if (keycode == Keys.SPACE) {
             this.player.shoot();
+            this.laserSound.play(0.6f);
+        }
         if (keycode == Keys.ESCAPE)
             this.paused = !this.paused;
         return false;
