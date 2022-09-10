@@ -22,11 +22,13 @@ import org.rmc.entity.enemies.Spaceship;
 import org.rmc.entity.enemies.UFO;
 import org.rmc.framework.base.BaseActor;
 import org.rmc.framework.base.BaseGame;
-import org.rmc.framework.base.BaseScreen;
+import org.rmc.framework.inputcontrol.InputGamepad;
+import org.rmc.framework.inputcontrol.InputGamepadScreen;
 import org.rmc.framework.tilemap.TilemapActor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapProperties;
@@ -35,7 +37,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
-public class LevelScreen extends BaseScreen {
+public class LevelScreen extends InputGamepadScreen {
 
     private Player player;
     private Vector2 playerStartPos;
@@ -558,6 +560,17 @@ public class LevelScreen extends BaseScreen {
             this.laserSound.play(0.6f);
         }
         if (keycode == Keys.ESCAPE)
+            this.paused = !this.paused;
+        return false;
+    }
+
+    @Override
+    public boolean buttonDown(Controller controller, int buttonCode) {
+        if (buttonCode == InputGamepad.getInstance().getButtonA()) {
+            this.player.shoot();
+            this.laserSound.play(0.6f);
+        }
+        if (buttonCode == InputGamepad.getInstance().getButtonStart())
             this.paused = !this.paused;
         return false;
     }

@@ -1,8 +1,11 @@
 package org.rmc.entity;
 
 import org.rmc.framework.base.BaseActor;
+import org.rmc.framework.inputcontrol.InputGamepad;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -100,33 +103,7 @@ public class Player extends BaseActor {
             this.setDeceleration(BaseActor.MAX_DECELERATION);
         }
 
-        // move player
-        if ((Gdx.input.isKeyPressed(Keys.O) || Gdx.input.isKeyPressed(Keys.LEFT))
-                && this.isVisible()) {
-            this.setAnimationPaused(false);
-            this.setAnimation(this.flying ? this.flyLeft : this.walkLeft);
-            this.accelerateAtAngle(180);
-            this.facingRight = false;
-        } else if ((Gdx.input.isKeyPressed(Keys.P) || Gdx.input.isKeyPressed(Keys.RIGHT))
-                && this.isVisible()) {
-            this.setAnimationPaused(false);
-            this.setAnimation(this.flying ? this.flyRight : this.walkRight);
-            this.accelerateAtAngle(0);
-            this.facingRight = true;
-        }
-
-        if ((Gdx.input.isKeyPressed(Keys.Q) || Gdx.input.isKeyPressed(Keys.UP))
-                && this.isVisible()) {
-            this.accelerateAtAngle(90);
-            if (!this.flying) {
-                Explosion explosion = new Explosion(0, 0, this.getStage());
-                explosion.centerAtPosition(this.getX() + this.getWidth() / 2,
-                        this.getY() + this.getHeight() / 4);
-            }
-        }
-
-        if (!Gdx.input.isKeyPressed(Keys.Q) && !Gdx.input.isKeyPressed(Keys.UP))
-            this.accelerateAtAngle(270);
+        this.movePlayer();
 
         // set animation
         if (this.flying) {
@@ -144,6 +121,44 @@ public class Player extends BaseActor {
 
         this.applyPhysics(delta);
         this.wrapAroundWorld();
+    }
+
+    private void movePlayer() {
+        float xAxis = 0;
+        float yAxis = 0;
+        if (Controllers.getControllers().size > 0) {
+            Controller gamepad = Controllers.getControllers().get(0);
+            xAxis = gamepad.getAxis(InputGamepad.getInstance().getAxisLeftX());
+            yAxis = gamepad.getAxis(InputGamepad.getInstance().getAxisLeftY());
+        }
+
+        if (this.isVisible()) {
+            if (Gdx.input.isKeyPressed(Keys.O) || Gdx.input.isKeyPressed(Keys.LEFT)
+                    || xAxis <= -1) {
+                this.setAnimationPaused(false);
+                this.setAnimation(this.flying ? this.flyLeft : this.walkLeft);
+                this.accelerateAtAngle(180);
+                this.facingRight = false;
+            } else if (Gdx.input.isKeyPressed(Keys.P) || Gdx.input.isKeyPressed(Keys.RIGHT)
+                    || xAxis >= 1) {
+                this.setAnimationPaused(false);
+                this.setAnimation(this.flying ? this.flyRight : this.walkRight);
+                this.accelerateAtAngle(0);
+                this.facingRight = true;
+            }
+
+            if (Gdx.input.isKeyPressed(Keys.Q) || Gdx.input.isKeyPressed(Keys.UP) || yAxis <= -1) {
+                this.accelerateAtAngle(90);
+                if (!this.flying) {
+                    Explosion explosion = new Explosion(0, 0, this.getStage());
+                    explosion.centerAtPosition(this.getX() + this.getWidth() / 2,
+                            this.getY() + this.getHeight() / 4);
+                }
+            }
+        }
+
+        if (!Gdx.input.isKeyPressed(Keys.Q) && !Gdx.input.isKeyPressed(Keys.UP) && yAxis > -1)
+            this.accelerateAtAngle(270);
     }
 
     public boolean isDead() {

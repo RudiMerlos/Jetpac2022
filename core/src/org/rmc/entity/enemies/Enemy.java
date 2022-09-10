@@ -30,7 +30,7 @@ public abstract class Enemy extends BaseActor {
 
         this.startY = MathUtils.random(this.getHeight() * 3,
                 MainGame.HEIGHT - this.getHeight() - this.getHeight() * 3);
-        this.setPosition(this.startLeft ? -this.getWidth() : MainGame.WIDTH, this.startY);
+        this.setPosition(this.startLeft ? 0 : MainGame.WIDTH - this.getWidth(), this.startY);
 
         this.setAcceleration(BaseActor.MAX_ACCELERATION);
         this.setMaxSpeed(speed);
