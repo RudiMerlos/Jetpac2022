@@ -235,8 +235,7 @@ public class LevelScreen extends InputGamepadScreen {
         if (this.rocket.getState() == 6 && this.player.overlaps(this.rocket, 0.001f)) {
             this.rocket.setBlastOff(true);
             this.upRocketSound.play();
-            this.player.setPosition(-10000, -10000);
-            this.player.setVisible(false);
+            this.removePlayer();
         }
 
         if (this.rocket.getState() == 6 && this.rocket.overlaps(this.rocketExit)) {
@@ -394,10 +393,13 @@ public class LevelScreen extends InputGamepadScreen {
     }
 
     private void checkForEnemyCollision() {
+        if (this.rocket.isBlastOff())
+            return;
+
         for (BaseActor enemy : BaseActor.getList(this.mainStage, Enemy.class)) {
             if (this.player.overlaps(enemy)) {
                 this.player.setDead(true);
-                this.player.setPosition(-10000, -10000);
+                this.player.setPosition(700, -1000);
                 this.removeEnemy(enemy);
                 this.lives--;
                 this.livesLabel.setText(String.valueOf(this.lives));
@@ -410,6 +412,9 @@ public class LevelScreen extends InputGamepadScreen {
                             MainGame.HEIGHT / 2 - gameOverImage.getHeight() / 2);
                 }
             }
+
+            if (enemy.getY() < 0 || enemy.getY() >= MainGame.HEIGHT)
+                this.removeEnemy((Enemy) enemy);
         }
     }
 
@@ -527,13 +532,18 @@ public class LevelScreen extends InputGamepadScreen {
         enemy.remove();
         enemy.setVisible(false);
         enemy.setPosition(-10000, -10000);
-        if (this.player.isVisible())
+        if (!this.rocket.isBlastOff())
             this.createNewEnemy((Enemy) enemy);
     }
 
     private void createFuel() {
-        if (this.rocket.getState() < 6 && !this.player.isDead())
+        if (this.rocket.getState() < 6 && !this.player.isDead() && this.player.isVisible())
             this.fuel = new Fuel(0, 0, this.mainStage);
+    }
+
+    private void removePlayer() {
+        this.player.setPosition(700, -1000);
+        this.player.setVisible(false);
     }
 
     private void setScore(int score) {
@@ -559,7 +569,7 @@ public class LevelScreen extends InputGamepadScreen {
             this.player.shoot();
             this.laserSound.play(0.6f);
         }
-        if (keycode == Keys.ESCAPE)
+        if (keycode == Keys.ESCAPE && this.player.isVisible())
             this.paused = !this.paused;
         return false;
     }
@@ -570,7 +580,7 @@ public class LevelScreen extends InputGamepadScreen {
             this.player.shoot();
             this.laserSound.play(0.6f);
         }
-        if (buttonCode == InputGamepad.getInstance().getButtonStart())
+        if (buttonCode == InputGamepad.getInstance().getButtonStart() && this.player.isVisible())
             this.paused = !this.paused;
         return false;
     }

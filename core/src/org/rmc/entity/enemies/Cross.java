@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 public class Cross extends Enemy {
 
     public Cross(float x, float y, Stage stage) {
-        super(x, y, stage, 200);
+        super(x, y, stage, 160);
         this.loadTexture("images/enemy_cross.png");
         this.setBoundaryPolygon(8);
 

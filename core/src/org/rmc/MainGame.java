@@ -34,8 +34,11 @@ public class MainGame extends BaseGame {
         if (realLevel % 16 == 0)
             level = 0;
         level++;
-        if (level == 2 || level == 5 || level == 9 || level == 13)
+        if (level == 2 || level == 5 || level == 9 || level == 13) {
             incrementMaxEnemies();
+            if (level != 2)
+                lives++;
+        }
     }
 
     public static boolean isNewPlanet() {
